@@ -40,9 +40,8 @@ try:
         cur.execute(sql)
 
         conn.commit()
+        conn.close() 
 except:
-    print('오류발생으로 강제종료')
-    conn.commit()
+    conn.close() 
 
-conn.close() 
 print('수집완료!')
