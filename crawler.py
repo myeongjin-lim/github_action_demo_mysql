@@ -1,7 +1,5 @@
 import requests as req
-import os
 import time
-from os.path import abspath
 from bs4 import BeautifulSoup as bs
 import pymysql
 
