@@ -1,5 +1,6 @@
 import requests as req
 import os
+import time
 from os.path import abspath
 from bs4 import BeautifulSoup as bs
 import pymysql
@@ -15,25 +16,24 @@ cur=conn.cursor()
 
 headers = {'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36'}
 
-category = ['0401','0402','0403','0404','0405','0408','0409']
-
 sql_rows = []
 
 try:
-    for cate in category:
 
-        for pageNo in range(1,2):
-            url = 'https://www.hankyung.com/economy/{}?page={}'.format(cate, pageNo)
+    url = 'https://news.naver.com/breakingnews/section/105/230'
 
-            res = req.get(url, headers = headers)
-            html = bs(res.content, 'lxml')
+    res = req.get(url, headers = headers)
+    html = bs(res.content, 'lxml')
 
-            tit_tags = html.select('h3.tit > a')
+    news_a_tag = html.select('a.sa_text_title')
 
-            for tit in tit_tags: 
-                title = tit.text.replace('"','')
-                sql_row = '({})'.format('"'+title+'"')
-                sql_rows.append(sql_row)
+    for a in news_a_tag: 
+    #     print(tit.text)
+        title = a.text.replace('"','').replace('\n','')
+        sql_row = '({})'.format('"'+title+'"')
+        sql_rows.append(sql_row)
+
+#         time.sleep(1)
 
     if sql_rows:
         sql = 'INSERT INTO test(data) VALUES ' + ','.join(sql_rows)
@@ -41,7 +41,8 @@ try:
 
         conn.commit()
         conn.close() 
-except:
+except Exception as e:
+    print('오류발생', e)
     conn.close() 
 
 print('수집완료!')
