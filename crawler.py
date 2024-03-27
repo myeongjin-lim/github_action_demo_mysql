@@ -1,4 +1,3 @@
-
 import requests as req
 import os
 from os.path import abspath
@@ -20,27 +19,29 @@ category = ['0401','0402','0403','0404','0405','0408','0409']
 
 sql_rows = []
 
+try:
+    for cate in category:
 
+        for pageNo in range(1,2):
+            url = 'https://www.hankyung.com/economy/{}?page={}'.format(cate, pageNo)
 
-for cate in category:
+            res = req.get(url, headers = headers)
+            html = bs(res.content, 'lxml')
 
-    for pageNo in range(1,2):
-        url = 'https://www.hankyung.com/economy/{}?page={}'.format(cate, pageNo)
+            tit_tags = html.select('h3.tit > a')
 
-        res = req.get(url, headers = headers)
-        html = bs(res.content, 'lxml')
+            for tit in tit_tags: 
+                title = tit.text.replace('"','')
+                sql_row = '({})'.format('"'+title+'"')
+                sql_rows.append(sql_row)
 
-        tit_tags = html.select('h3.tit > a')
+    if sql_rows:
+        sql = 'INSERT INTO test(data) VALUES ' + ','.join(sql_rows)
+        cur.execute(sql)
 
-        for tit in tit_tags: 
-            title = tit.text.replace('"','')
-            sql_row = '({})'.format('"'+title+'"')
-            sql_rows.append(sql_row)
-
-if sql_rows:
-    sql = 'INSERT INTO test(data) VALUES ' + ','.join(sql_rows)
-    cur.execute(sql)
-
+        conn.commit()
+except:
+    print('오류발생으로 강제종료')
     conn.commit()
 
 conn.close() 
