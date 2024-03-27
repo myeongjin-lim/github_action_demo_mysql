@@ -1,0 +1,43 @@
+name: 뉴스링크크롤러업데이트
+
+# push해서 바로 실행
+# on: [push]  
+
+# 1분마다 동작하는 cron 스케줄러
+on: 
+   schedule:
+     - cron: '*/30 * * * *'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+#     strategy:
+#       matrix:
+#         python-version: [3.7] # 파이썬 3.6, 3.7 버전으로
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up python 3.7
+      uses: actions/setup-python@v1
+      with:
+        python-version: ${{ matrix.python-version }}
+        
+    # 파이썬 pip 업그레이드
+    - name : Python pip upgrade 
+      run: |
+        python -m pip install --upgrade pip 
+        pip install build
+        # pip install cx_Oracle
+        python -m pip install pymysql
+    
+    # 파이썬 관련 패키지를 설치
+    - name: install python package 
+      run: |        
+        pip install beautifulsoup4
+        pip install requests
+        pip install lxml
+                      
+    # news_list_crawler.py 파일을 실행!
+    - name: Run!  
+      run: | 
+        python crawler.py
